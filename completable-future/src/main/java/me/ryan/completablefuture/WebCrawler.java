@@ -22,10 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalDouble;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -131,12 +128,21 @@ public class WebCrawler {
                         .mapToDouble(Double::valueOf).max());
 
         try {
-            log.info(maxRelevance.toCompletableFuture().get());
+            log.info(maxRelevance.get());
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
         executor.shutdown();
+
+        try {
+            if (!executor.awaitTermination(1000, TimeUnit.MILLISECONDS)) {
+                log.info("waiting 1 second for turning off the executor, otherwise, calling system exit");
+                System.exit(0);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
