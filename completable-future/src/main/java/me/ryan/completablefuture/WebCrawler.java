@@ -68,21 +68,23 @@ public class WebCrawler {
 
         for (int i = 0; i < items.getLength(); i++) {
             Node element = ((Element) items.item(i)).getElementsByTagName("pubDate").item(0);
-            log.info(element.getTextContent());
             xmlItems.add(element.getTextContent());
         }
 
         List<ZonedDateTime> itemSum = new ArrayList<>();
         for (String pubDate : xmlItems) {
             ZonedDateTime zd = parseDateTime(pubDate);
-            if (zd.isAfter(ZonedDateTime.now().minusDays(3))) {
+            if (zd.isAfter(ZonedDateTime.now().minusDays(4))) {
                 itemSum.add(zd);
             }
         }
 
+        log.debug("The number of items: {}", itemSum.size());
+
         CompletableFuture<Double> completableFuture = new CompletableFuture<>();
 
         Executors.newCachedThreadPool().submit(() -> {
+            Thread.sleep((long) Math.random() * 1000);
             completableFuture.complete(itemSum.size() * 0.1D / 2.5D);
             return null;
         });
@@ -127,8 +129,9 @@ public class WebCrawler {
         CompletableFuture<OptionalDouble> maxRelevance = allDone
                 .thenApply(relevanceList -> relevanceList.stream()
                         .mapToDouble(Double::valueOf).max());
+
         try {
-            log.info(maxRelevance.get());
+            log.info(maxRelevance.toCompletableFuture().get());
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
