@@ -39,7 +39,7 @@ public class WebCrawler {
         try {
             log.debug("Downloading {}", site);
             final String res = IOUtils.toString(new URL(site), StandardCharsets.UTF_8);
-            log.debug("Done {}", site);
+            log.info("Done {}", site);
             return res;
         } catch (IOException e) {
             throw Throwables.propagate(e);
@@ -78,15 +78,16 @@ public class WebCrawler {
 
         log.debug("The number of items: {}", itemSum.size());
 
-        CompletableFuture<Double> completableFuture = new CompletableFuture<>();
-
-        Executors.newCachedThreadPool().submit(() -> {
-            Thread.sleep((long) Math.random() * 1000);
-            completableFuture.complete(itemSum.size() * 0.1D / 2.5D);
-            return null;
+        return CompletableFuture.completedFuture(0.0D).thenApply(d -> {
+            try {
+                int duration = (int) (Math.random() * 3000L);
+                log.debug("Sleep duration is: {}", duration);
+                Thread.sleep(duration);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return itemSum.size() * 0.1D / 2.5D;
         });
-
-        return completableFuture;
     }
 
     private ZonedDateTime parseDateTime(String dateTime) {
@@ -125,24 +126,25 @@ public class WebCrawler {
 
         CompletableFuture<OptionalDouble> maxRelevance = allDone
                 .thenApply(relevanceList -> relevanceList.stream()
-                        .mapToDouble(Double::valueOf).max());
+                        .mapToDouble(score -> {
+                            log.info("Each score is: {}", score);
+                            return score;
+                        }).max());
 
         try {
-            log.info(maxRelevance.get());
+            log.info("Maximum relevance score is: {}", maxRelevance.get());
+            maxRelevance.thenRun(executor::shutdown);
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
-        executor.shutdown();
-
+        log.debug(executor.isTerminated());
         try {
-            if (!executor.awaitTermination(1000, TimeUnit.MILLISECONDS)) {
-                log.info("waiting 1 second for turning off the executor, otherwise, calling system exit");
-                System.exit(0);
-            }
+            executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        log.debug(executor.isTerminated());
     }
 
     public static void main(String[] args) {
