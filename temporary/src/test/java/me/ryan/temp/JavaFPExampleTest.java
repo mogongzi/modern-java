@@ -5,19 +5,17 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.DoubleSupplier;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JavaFPExampleTest {
 
     /**
      * A Consumer is a functional interface that accepts a single input and returns no output.
-     *
+     * <p>
      * The accept method is the Single Abstract Method (SAM) which accepts a single argument of type T
-     *
+     * <p>
      * void accept(T t);
      * default Consumer<T> andThen(Consumer<? super T> after);
      */
@@ -58,7 +56,7 @@ public class JavaFPExampleTest {
         };
 
         Consumer<List<String>> printConsumer = list -> {
-          list.forEach(System.out::println);
+            list.forEach(System.out::println);
         };
 
         upperCaseConsumer.andThen(printConsumer).accept(cities);
@@ -110,5 +108,36 @@ public class JavaFPExampleTest {
         Predicate<String> nameStartsWith = s -> s.startsWith("S");
 
         names.stream().filter(nameStartsWith).forEach(System.out::println);
+    }
+
+    @Test
+    public void testPredicateAndComposition() {
+        List<String> names = Arrays.asList("John", "Smith", "Samuel", "Cathy", "Sie");
+
+        Predicate<String> startPredicate = str -> str.startsWith("S");
+        Predicate<String> lengthPredicate = str -> str.length() > 5;
+        names.stream().filter(startPredicate.and(lengthPredicate)).forEach(System.out::println);
+    }
+
+    /*
+     * A Function interface is more of a generic one that takes one argument and produces a result.
+     * This has a Single Abstract Method (SAM) apply which accepts an argument of a type T and produces a result of type R.
+     * One of the common use cases of this interface is Stream.map method.
+     */
+    @Test
+    public void testFunctions() {
+        List<String> names = Arrays.asList("Smith", "Gourav", "Heather", "John", "Catania");
+        /*
+         *
+         Function<String, Integer> nameMappingFunction = new Function<String, Integer>() {
+            @Override
+            public Integer apply(String s) {
+                return s.length();
+            }
+         };
+         */
+        Function<String, Integer> nameMappingFunction = String::length;
+        List<Integer> nameLength = names.stream().map(nameMappingFunction).collect(Collectors.toList());
+        System.out.println(nameLength);
     }
 }
