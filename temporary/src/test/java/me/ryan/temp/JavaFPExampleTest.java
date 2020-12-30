@@ -140,4 +140,19 @@ public class JavaFPExampleTest {
         List<Integer> nameLength = names.stream().map(nameMappingFunction).collect(Collectors.toList());
         System.out.println(nameLength);
     }
+
+    /*
+     * BiFunction interface - it takes two arguments and returns an object.
+     */
+    @Test
+    public void testBiFunction() {
+        BiFunction<Integer, Integer, Integer> biFunc = new BiFunction<Integer, Integer, Integer>() {
+            @Override
+            public Integer apply(Integer x, Integer y) {
+                return x + y;
+            }
+        };
+
+        System.out.println(biFunc.apply(2, 3));
+    }
 }
