@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>nio</module>
-        <module>rabbitmq-example</module>
+        <module>rabbitmq</module>
         <module>completable-future</module>
         <module>rabbitmq</module>
         <module>temporary</module>
