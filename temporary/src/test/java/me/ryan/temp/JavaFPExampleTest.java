@@ -63,7 +63,7 @@ public class JavaFPExampleTest {
     }
 
     @Test
-    public void supplier() {
+    public void testSupplier() {
         /*
          * Supplier<Double> doubleSupplier1 = new Supplier<Double>() {
             @Override
@@ -146,12 +146,15 @@ public class JavaFPExampleTest {
      */
     @Test
     public void testBiFunction() {
-        BiFunction<Integer, Integer, Integer> biFunc = new BiFunction<Integer, Integer, Integer>() {
+        /*
+         * BiFunction<Integer, Integer, Integer> biFunc = new BiFunction<Integer, Integer, Integer>() {
             @Override
             public Integer apply(Integer x, Integer y) {
                 return x + y;
             }
-        };
+        }; */
+
+        BiFunction<Integer, Integer, Integer> biFunc = Integer::sum;
 
         System.out.println(biFunc.apply(2, 3));
     }
