@@ -14,6 +14,8 @@
         <module>completable-future</module>
         <module>rabbitmq</module>
         <module>temporary</module>
+        <module>akka</module>
+        <module>multi-threading</module>
     </modules>
 
     <dependencies>
