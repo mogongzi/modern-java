@@ -8,6 +8,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import io.vertx.core.Vertx;
 
+import java.io.IOException;
+
 public class HttpServerActor extends AbstractActor {
 
     private final LoggingAdapter log = Logging.getLogger(this.getContext().getSystem(), this);
@@ -29,16 +31,13 @@ public class HttpServerActor extends AbstractActor {
                 .build();
     }
 
-    @Override
-    public void postStop() throws Exception, Exception {
-        vertx.close();
-    }
-
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws IOException {
         ActorSystem system = ActorSystem.create("vertx-server");
         ActorRef httpServerActor = system.actorOf(Props.create(HttpServerActor.class));
         httpServerActor.tell(new CreateMsg(), ActorRef.noSender());
-        Thread.sleep(8000L);
+
+        System.out.println("Press RETURN to stop...");
+        System.in.read();
         httpServerActor.tell(new ShutdownMsg(), ActorRef.noSender());
         system.terminate();
     }
