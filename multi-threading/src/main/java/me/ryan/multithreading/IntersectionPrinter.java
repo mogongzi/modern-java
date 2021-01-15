@@ -6,15 +6,15 @@ import org.apache.logging.log4j.Logger;
 public class IntersectionPrinter {
 
     public static void main(String[] args) {
-        Lock lock = new Lock();
-        OddNumberPrinter oddPrinter = new OddNumberPrinter(lock);
-        EvenNumberPrinter evenPrinter = new EvenNumberPrinter(lock);
+        CountLock countLock = new CountLock();
+        OddNumberPrinter oddPrinter = new OddNumberPrinter(countLock);
+        EvenNumberPrinter evenPrinter = new EvenNumberPrinter(countLock);
         new Thread(oddPrinter).start();
         new Thread(evenPrinter).start();
     }
 }
 
-class Lock {
+class CountLock {
     private boolean flag;
 
     public boolean isFlag() {
@@ -30,25 +30,25 @@ class OddNumberPrinter implements Runnable {
 
     public static final Logger log = LogManager.getLogger(OddNumberPrinter.class);
 
-    public OddNumberPrinter(Lock lock) {
-        this.lock = lock;
+    public OddNumberPrinter(CountLock countLock) {
+        this.countLock = countLock;
     }
 
-    private final Lock lock;
+    private final CountLock countLock;
 
     @Override
     public void run() {
         int i = 1;
         while (i < 100) {
-            synchronized (lock) {
-                if (!lock.isFlag()) {
+            synchronized (countLock) {
+                if (!countLock.isFlag()) {
                     log.info("[Thread id {}] is printing: {}", Thread.currentThread().getId(), i);
                     i += 2;
-                    lock.setFlag(true);
-                    lock.notify();
+                    countLock.setFlag(true);
+                    countLock.notify();
                 } else {
                     try {
-                        lock.wait();
+                        countLock.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -62,25 +62,25 @@ class EvenNumberPrinter implements Runnable {
 
     public static final Logger log = LogManager.getLogger(EvenNumberPrinter.class);
 
-    private Lock lock;
+    private CountLock countLock;
 
-    public EvenNumberPrinter(Lock lock) {
-        this.lock = lock;
+    public EvenNumberPrinter(CountLock countLock) {
+        this.countLock = countLock;
     }
 
     @Override
     public void run() {
         int i = 2;
         while (i < 100) {
-            synchronized (lock) {
-                if (lock.isFlag()) {
+            synchronized (countLock) {
+                if (countLock.isFlag()) {
                     log.info("[Thread id {}] is printing: {}", Thread.currentThread().getId(), i);
                     i += 2;
-                    lock.setFlag(false);
-                    lock.notify();
+                    countLock.setFlag(false);
+                    countLock.notify();
                 } else {
                     try {
-                        lock.wait();
+                        countLock.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
