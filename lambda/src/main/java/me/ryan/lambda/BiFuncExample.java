@@ -6,9 +6,12 @@ import java.util.function.BiFunction;
 public class BiFuncExample {
 
     public static void main(String[] args) {
-        int id = 3;
-        RabbitHub hub = new RabbitHub(id, (newId, spawner) -> {
-            MyObject obj = spawner.apply(newId.toString(), "MyObj");
+        ConnectionFactory factory = new ConnectionFactory();
+        Connection connection = new Connection();
+        int nodeId = 0;
+        int clusterId = 1;
+        RabbitHub hub = RabbitHub.create(factory, (webHook, spawner) -> {
+            MyObject obj = spawner.apply(WebhookHub.create(connection, nodeId, clusterId), "MyObj");
             obj.show();
         });
         hub.steps();
@@ -16,24 +19,39 @@ public class BiFuncExample {
 
 }
 
-class RabbitHub extends Base {
-
-    private final int id;
-    private final BiConsumer<Integer, BiFunction<String, String, MyObject>> childrenSpawner;
-
-    public RabbitHub(int id, BiConsumer<Integer, BiFunction<String, String, MyObject>> childrenSpawner) {
-        this.id = id;
-        this.childrenSpawner = childrenSpawner;
-    }
-
-    public void steps() {
-        childrenSpawner.accept(id, this::spawnWatchedUntypedChild);
+class Base {
+    protected MyObject spawnWatchedUntypedChild(final WebhookHub id, final String name) {
+        return new MyObject(id.toString(), name);
     }
 }
 
-class Base {
-    protected MyObject spawnWatchedUntypedChild(final String id, final String name) {
-        return new MyObject(id, name);
+class RabbitHub extends Base {
+
+    private final BiConsumer<Connection, BiFunction<WebhookHub, String, MyObject>> childrenSpawner;
+
+    private RabbitHub(ConnectionFactory factory , BiConsumer<Connection, BiFunction<WebhookHub, String, MyObject>> childrenSpawner) {
+        this.childrenSpawner = childrenSpawner;
+    }
+
+    public static RabbitHub create(ConnectionFactory factory, BiConsumer<Connection, BiFunction<WebhookHub, String, MyObject>> childrenSpawner) {
+        return new RabbitHub(factory, childrenSpawner);
+    }
+
+    public void steps() {
+        childrenSpawner.accept(ConnectionFactory.createConnection(), this::spawnWatchedUntypedChild);
+    }
+}
+
+class WebhookHub extends Base {
+    private final Connection conn;
+
+    private WebhookHub(final Connection conn, final int nodeId, final int clusterSize) {
+        this.conn = conn;
+        System.out.println("Node ID: " + nodeId + "[Cluster size: " + clusterSize + "]");
+    }
+
+    public static WebhookHub create(final Connection conn, final int nodeId, final int clusterSize) {
+        return new WebhookHub(conn, nodeId, clusterSize);
     }
 }
 
@@ -48,5 +66,15 @@ class MyObject {
 
     public void show() {
         System.out.println("[ID: " + id + "]:[" + name + "]");
+    }
+}
+
+class Connection {
+
+}
+
+class ConnectionFactory {
+    public static Connection createConnection() {
+        return new Connection();
     }
 }
