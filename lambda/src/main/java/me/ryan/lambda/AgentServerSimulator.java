@@ -2,22 +2,36 @@ package me.ryan.lambda;
 
 import me.ryan.lambda.util.Util;
 
-import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public class AgentServerSimulator {
 
     public static void main(String[] args) {
+
+        ExecutorService pool = Executors.newFixedThreadPool(20);
+
         ConnectionFactory factory = new ConnectionFactory();
         Connection connection = new Connection();
         int nodeId = 0;
         int clusterId = 1;
         RabbitHub hub = RabbitHub.create(factory, (webHook, spawner) -> {
-            MyMessage obj = spawner.apply(WebhookHub.create(connection, nodeId, clusterId), "MyObj");
-            obj.show();
+            Runnable target = () -> {
+                for (int i = 0; i < 100; i++) {
+                    MyMessage obj = spawner.apply(WebhookHub.create(connection, nodeId, clusterId), "MyObj");
+                    obj.show();
+                }  
+            };
+
+            for (int i = 0; i < 20; i++) {
+                pool.submit(target);
+            }
         });
         hub.steps();
+
+        pool.shutdown();
     }
 
 }
@@ -48,6 +62,12 @@ class RabbitHub extends Base {
 class WebhookHub extends Base {
 
     private WebhookHub(final Connection conn, final int nodeId, final int clusterSize) {
+        int duration = (int) (Math.random() * 20);
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         setupRabbitMQ(conn);
         System.out.println("Node ID: " + nodeId + "[Cluster size: " + clusterSize + "]");
     }
@@ -56,7 +76,7 @@ class WebhookHub extends Base {
         return new WebhookHub(conn, nodeId, clusterSize);
     }
 
-    private static void setupRabbitMQ(final Connection connection) {
+    private synchronized static void setupRabbitMQ(final Connection connection) {
 
         for (final String c : Util.BASE_62_CHARS) {
             final String queueName = queueNameForBase62CharShard(c);
