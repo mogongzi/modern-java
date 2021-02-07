@@ -158,4 +158,19 @@ public class JavaFPExampleTest {
 
         System.out.println(biFunc.apply(2, 3));
     }
+
+    /*
+     * BiConsumer is a functional interface; it takes two arguments and returns nothing.
+     */
+    @Test
+    public void testBiConsumer() {
+        BiConsumer<Integer, Integer> addTwo = new BiConsumer<Integer, Integer>() {
+            @Override
+            public void accept(Integer integer, Integer integer2) {
+                System.out.println(integer + integer2);
+            }
+        };
+
+        addTwo.accept(1, 2);
+    }
 }
