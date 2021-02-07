@@ -1,4 +1,4 @@
-package me.ryan.temp;
+package me.ryan.lambda;
 
 import org.junit.Test;
 

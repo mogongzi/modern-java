@@ -16,6 +16,7 @@
         <module>temporary</module>
         <module>akka</module>
         <module>multi-threading</module>
+        <module>lambda</module>
     </modules>
 
     <dependencies>
