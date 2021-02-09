@@ -11,21 +11,20 @@ public class AgentServerSimulator {
 
     public static void main(String[] args) {
 
-        ExecutorService pool = Executors.newFixedThreadPool(20);
+        ExecutorService pool = Executors.newFixedThreadPool(16);
 
         ConnectionFactory factory = new ConnectionFactory();
         Connection connection = new Connection();
         int nodeId = 0;
         int clusterId = 1;
+
         RabbitHub hub = RabbitHub.create(factory, (webHook, spawner) -> {
             Runnable target = () -> {
-                for (int i = 0; i < 100; i++) {
-                    MyMessage obj = spawner.apply(WebhookHub.create(connection, nodeId, clusterId), "MyObj");
-                    obj.show();
-                }  
+                MyMessage obj = spawner.apply(WebhookHub.create(connection, nodeId, clusterId), "MyObj");
+                obj.show();
             };
 
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 20000; i++) {
                 pool.submit(target);
             }
         });
@@ -46,7 +45,7 @@ class RabbitHub extends Base {
 
     private final BiConsumer<Connection, BiFunction<WebhookHub, String, MyMessage>> childrenSpawner;
 
-    private RabbitHub(ConnectionFactory factory , BiConsumer<Connection, BiFunction<WebhookHub, String, MyMessage>> childrenSpawner) {
+    private RabbitHub(ConnectionFactory factory, BiConsumer<Connection, BiFunction<WebhookHub, String, MyMessage>> childrenSpawner) {
         this.childrenSpawner = childrenSpawner;
     }
 
@@ -62,26 +61,19 @@ class RabbitHub extends Base {
 class WebhookHub extends Base {
 
     private WebhookHub(final Connection conn, final int nodeId, final int clusterSize) {
-        int duration = (int) (Math.random() * 20);
-        try {
-            Thread.sleep(duration);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         setupRabbitMQ(conn);
-        System.out.println("Node ID: " + nodeId + "[Cluster size: " + clusterSize + "]");
     }
 
     public static WebhookHub create(final Connection conn, final int nodeId, final int clusterSize) {
         return new WebhookHub(conn, nodeId, clusterSize);
     }
 
-    private synchronized static void setupRabbitMQ(final Connection connection) {
+    private static void setupRabbitMQ(final Connection connection) {
 
         for (final String c : Util.BASE_62_CHARS) {
             final String queueName = queueNameForBase62CharShard(c);
-            System.out.print(queueName + "\t");
-            System.out.println(" exchange.events " + topicBindingForBase62CharShard(c));
+            connection.declare(queueName);
+            connection.bind(queueName, topicBindingForBase62CharShard(c));
         }
     }
 
@@ -116,13 +108,42 @@ class MyMessage {
     }
 
     public void show() {
-        System.out.println("[ID: " + id + "]:[" + name + "]");
+        //System.out.println("[ID: " + id + "]:[" + name + "]");
     }
 }
 
 class Connection {
-    public void open() {
-        System.out.println("Connection is open...");
+
+    public void declare(String name) {
+        int duration = (int) (Math.random() * 5);
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void bind(String name, String binding) {
+        ExecutorService pool = Executors.newFixedThreadPool(16);
+        Runnable target = () -> {
+            int duration = (int) (Math.random() * 5);
+            try {
+                Thread.sleep(duration);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            char q = name.charAt(22);
+            char b = binding.charAt(22);
+            System.out.println(" [" + q + ":" + b + "]");
+            if (q != b) {
+                System.out.println("!!!!!!!!!!!!!!!!!!!!");
+                System.exit(0);
+            }
+        };
+
+        pool.submit(target);
+        pool.shutdown();
     }
 }
 
