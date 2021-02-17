@@ -17,7 +17,6 @@
         <module>akka</module>
         <module>multi-threading</module>
         <module>lambda</module>
-        <module>general</module>
     </modules>
 
     <dependencies>
