@@ -3,6 +3,7 @@ package me.ryan.temp;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GenericExampleTest {
@@ -41,12 +42,12 @@ public class GenericExampleTest {
 
     @Test
     public void testContravariant() {
-        List<GreenApple> greenApples = Lists.newArrayList();
-        List<Apple> apples = Lists.newArrayList();
-        List<Fruit> fruits = Lists.newArrayList();
+        List<GreenApple> greenApples = new ArrayList<>();
+        List<Apple> apples = new ArrayList<>();
+        List<Fruit> fruits = new ArrayList<>();
 
         collectFruits(fruits);
         collectFruits(apples);
-        collectFruits(greenApples);
+        // collectFruits(greenApples); Contravariant A >= B, f(B) >= f(A)
     }
 }
