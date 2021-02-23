@@ -1,12 +1,11 @@
 package me.ryan.temp;
 
 import com.google.common.collect.Lists;
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.util.List;
 
-public class GenericeExampleTest extends TestCase {
+public class GenericExampleTest {
 
     private void eatFruit(Fruit fruit) {
         System.out.println("eat " + fruit.getPulp());
@@ -17,7 +16,7 @@ public class GenericeExampleTest extends TestCase {
     }
 
     private void collectFruits(List<? super Apple> fruits) {
-        //fruits.add(new Fruit());
+        // fruits.add(new Fruit()); Covariant A >= B, f(A) >= f(B)
         fruits.add(new Apple());
         fruits.add(new GreenApple());
     }

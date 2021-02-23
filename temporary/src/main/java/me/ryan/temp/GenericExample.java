@@ -1,9 +1,13 @@
 package me.ryan.temp;
 
-public class GenericeExample {
+public class GenericExample {
 
     public static void main(String[] args) {
-
+        // Arrays are covariant in Java
+        Number[] numbers = new Number[3];
+        numbers[0] = 2;
+        numbers[1] = 1.2F;
+        numbers[2] = 2.02D;
     }
 }
 
