@@ -13,13 +13,15 @@ public class GenericExampleTest {
     }
 
     private void eatFruit(List<? extends Apple> fruits) {
+        // Covariant A >= B, f(A) >= f(B)
         fruits.forEach(fruit -> System.out.println("eat " + fruit.getPulp()));
     }
 
     private void collectFruits(List<? super Apple> fruits) {
-        // fruits.add(new Fruit()); Covariant A >= B, f(A) >= f(B)
+        // fruits.add(new Fruit());
         fruits.add(new Apple());
         fruits.add(new GreenApple());
+        System.out.println(fruits.size());
     }
 
     @Test
@@ -33,7 +35,7 @@ public class GenericExampleTest {
     public void testCovariant() {
         List<GreenApple> greenApples = Lists.newArrayList(new GreenApple());
         List<Apple> apples = Lists.newArrayList(new Apple());
-        List<Fruit> fruits = Lists.newArrayList(new Fruit());
+        //List<Fruit> fruits = Lists.newArrayList(new Fruit());
 
         eatFruit(greenApples);
         eatFruit(apples);
