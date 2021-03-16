@@ -17,6 +17,7 @@
         <module>akka</module>
         <module>multi-threading</module>
         <module>lambda</module>
+        <module>classic-cs-problems</module>
     </modules>
 
     <dependencies>
