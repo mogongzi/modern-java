@@ -1,4 +1,4 @@
-package em.ryan.algorithm;
+package me.ryan.algorithm;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

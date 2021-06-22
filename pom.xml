@@ -18,6 +18,7 @@
         <module>multi-threading</module>
         <module>lambda</module>
         <module>classic-cs-problems</module>
+        <module>lucene</module>
     </modules>
 
     <dependencies>
