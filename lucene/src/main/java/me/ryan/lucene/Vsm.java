@@ -1,39 +1,36 @@
 package me.ryan.lucene;
 
-import org.apache.logging.log4j.core.util.JsonUtils;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class Vsm {
 
     public static double calCosSim(Map<String, Double> v1, Map<String, Double> v2) {
-        double sclar = 0.0, norm1 = 0.0, norm2 = 0.0, similarity = 0.0;
+        double scalar = 0.0, norm1 = 0.0, norm2 = 0.0, similarity = 0.0;
 
-        Set<String> v1Keys = v1.keySet();
-        Set<String> v2Keys = v2.keySet();
-        Set<String> both = new HashSet<>(v1Keys);
+        var v1Keys = v1.keySet();
+        var v2Keys = v2.keySet();
+        var both = new HashSet<>(v1Keys);
 
         both.retainAll(v2Keys);
         System.out.println(both);
 
-        for (String word : both) {
-            sclar += v1.get(word) * v2.get(word);
+        for (var word : both) {
+            scalar += v1.get(word) * v2.get(word);
         }
 
-        for (String word : v1.keySet()) {
+        for (var word : v1.keySet()) {
             norm1 += Math.pow(v1.get(word), 2);
         }
 
-        for (String word : v2.keySet()) {
+        for (var word : v2.keySet()) {
             norm2 += Math.pow(v2.get(word), 2);
         }
 
-        similarity = sclar / Math.sqrt(norm1 * norm2);
+        similarity = scalar / Math.sqrt(norm1 * norm2);
 
-        System.out.println("sclar: " + sclar);
+        System.out.println("scalar: " + scalar);
         System.out.println("norm1: " + norm1);
         System.out.println("norm2: " + norm2);
         return similarity;

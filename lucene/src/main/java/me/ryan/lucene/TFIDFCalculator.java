@@ -23,7 +23,7 @@ public class TFIDFCalculator {
     }
 
     public int df(List<List<String>> docs, String term) {
-        int n = 0;
+        var n = 0;
         if (term != null && !term.equals("")) {
             for (List<String> doc : docs) {
                 for (String word : doc) {
@@ -34,7 +34,7 @@ public class TFIDFCalculator {
                 }
             }
         } else {
-            System.out.println("Term cannot be null or empty.");
+            log.info("Term cannot be null or empty.");
         }
 
         return n;
@@ -56,10 +56,12 @@ public class TFIDFCalculator {
 
         List<List<String>> docs = Arrays.asList(doc1, doc2, doc3, doc4);
 
-        TFIDFCalculator calculator = new TFIDFCalculator();
+        var calculator = new TFIDFCalculator();
         log.info(calculator.tf(doc2, "谷歌"));
         log.info(calculator.df(docs, "谷歌"));
         double tfidf = calculator.tfIdf(doc2, docs, "谷歌");
-        log.info("TF-IDF(谷歌) = " + tfidf);
+        if (log.isInfoEnabled()) {
+            log.info(String.format("TF-IDF(谷歌) = %s", tfidf));
+        }
     }
 }
